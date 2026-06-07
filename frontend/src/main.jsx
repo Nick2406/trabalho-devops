@@ -1,0 +1,16 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+fetch(`${API_URL}/api/pedidos`)
+   .then(res => res.json())
+   .then(data => console.log(data));

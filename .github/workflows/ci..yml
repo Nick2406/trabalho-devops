@@ -1,0 +1,35 @@
+name: Pipeline de Integração Contínua (CI)
+
+# Define o gatilho: vai rodar sempre que houver um push na branch main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Baixa o código do seu repositório para a máquina virtual do GitHub
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    # 2. Instala o ambiente do Node.js na máquina virtual
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    # 3. Entra na pasta do backend e instala as dependências (Express, Jest, Supertest)
+    - name: Instalar dependências do Backend
+      run: |
+        cd backend
+        npm install
+
+    # 4. Executa os testes automatizados que vamos criar a seguir
+    - name: Executar Testes Automatizados
+      run: |
+        cd backend
+        npm test

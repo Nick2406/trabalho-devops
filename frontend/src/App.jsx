@@ -1,121 +1,91 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useState, useEffect } from 'react'
 import './App.css'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [pedidos, setPedidos] = useState([])
+  const [novoItem, setNovoItem] = useState('')
+  const [quantidade, setQuantidade] = useState(1)
+
+  const carregarPedidos = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/pedidos`)
+      const data = await response.json()
+      if (Array.isArray(data.data)) {
+        setPedidos(data.data)
+      }
+    } catch (error) {
+      console.error("Erro ao buscar pedidos:", error)
+    }
+  }
+
+  const fazerPedido = async (e) => {
+    e.preventDefault()
+    
+    try {
+      await fetch(`${API_URL}/api/pedidos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item: novoItem, quantidade: quantidade })
+      })
+      
+      setNovoItem('')
+      setQuantidade(1)
+      carregarPedidos()
+    } catch (error) {
+      console.error("Erro ao salvar pedido:", error)
+    }
+  }
+
+  useEffect(() => {
+    const fetchPedidos = async () => {
+      await carregarPedidos()
+    }
+
+    fetchPedidos()
+  }, [])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="container">
+      <h1>Peças Eletrônicas -Pedidos</h1>
+      
+      <div className="card">
+        <h2>Fazer Novo Pedido</h2>
+        <form onSubmit={fazerPedido}>
+          <input 
+            type="text" 
+            placeholder="Ex: Geforce RTX 4060" 
+            value={novoItem}
+            onChange={(e) => setNovoItem(e.target.value)}
+            required 
+          />
+          <input 
+            type="number" 
+            min="1" 
+            value={quantidade}
+            onChange={(e) => setQuantidade(e.target.value)}
+            required 
+          />
+          <button type="submit">Enviar Pedido</button>
+        </form>
+      </div>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
+      <div className="card">
+        <h2> Pedidos Recentes</h2>
+        {pedidos.length === 0 ? (
+          <p>Nenhum pedido encontrado.</p>
+        ) : (
           <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
+            {pedidos.map((pedido, index) => (
+              <li key={index}>
+                <strong>{pedido.quantidade}x</strong> {pedido.item} - <em>{pedido.status || 'Pendente'}</em>
+              </li>
+            ))}
           </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        )}
+      </div>
+    </div>
   )
 }
 

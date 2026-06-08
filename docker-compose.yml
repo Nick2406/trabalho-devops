@@ -39,7 +39,7 @@ services:
         condition: service_healthy
 
   frontend:
-    image: nicolasvital/hardware-frontend:latest
+    build: ./frontend
     container_name: hardware_frontend
     restart: always
     ports:
@@ -51,17 +51,19 @@ services:
     depends_on:
       - backend
 
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER_API_VERSION=1.44
+    command: --interval 60
+    restart: always
+
 networks:
   internal_network:
     driver: bridge
 
 volumes:
   pgdata:
-
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 60
-    restart: always

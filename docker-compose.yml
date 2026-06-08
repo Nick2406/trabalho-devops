@@ -1,29 +1,27 @@
 services:
-  # 1. Serviço do Banco de Dados PostgreSQL
   db:
     image: postgres:15-alpine
     container_name: hardware_db
-    restart: always # Cumpre o requisito "Possuir restart policy"
+    restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-senha_secreta} # Variáveis de ambiente
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-senha_secreta}
       POSTGRES_DB: pedidos_db
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data # Resolve "Problema 4": Volumes persistentes
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql # Roda seu script inicial
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - internal_network # Utilizar rede interna Docker
-    healthcheck: # Resolve "Problema 3": Healthcheck no banco
+      - internal_network
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # 2. Serviço do Backend Node.js
   backend:
-    build: ./backend
+    image: nicolasvital/hardware-backend:latest
     container_name: hardware_backend
     restart: always
     ports:
@@ -38,27 +36,32 @@ services:
       - internal_network
     depends_on:
       db:
-        condition: service_healthy # Resolve "Problema 3": Só inicia após o banco estar saudável
+        condition: service_healthy
 
-  # 3. Serviço do Frontend React
   frontend:
-    build: ./frontend
+    image: nicolasvital/hardware-frontend:latest
     container_name: hardware_frontend
     restart: always
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://localhost:3000 # Variável de ambiente
+      - VITE_API_URL=http://localhost:3000
     networks:
       - internal_network
     depends_on:
-      - backend # Frontend aguarda o backend
+      - backend
 
-# Define a rede interna exigida
 networks:
   internal_network:
     driver: bridge
 
-# Define os volumes para persistência exigida
 volumes:
   pgdata:
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 60
+    restart: always

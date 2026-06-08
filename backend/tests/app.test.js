@@ -1,6 +1,15 @@
 const request = require('supertest');
 const app = require('../src/app'); 
 
+jest.mock('pg', () => {
+  const mPool = {
+    query: jest.fn().mockResolvedValue({ 
+      rows: [{ id: 1, item: 'Placa de Vídeo Mock', quantidade: 1, status: 'Processando' }] 
+    }),
+  };
+  return { Pool: jest.fn(() => mPool) };
+});
+
 describe('Testes de Integração - API', () => {
 
   it('Deve responder com status 200 na rota de Healthcheck', async () => {

@@ -30,6 +30,5 @@ jobs:
         npm test
 
     - name: Validar Build das Imagens Docker
-      # Este passo cumpre a exigência de "Construir imagens Docker" na pipeline
       run: |
         docker compose build

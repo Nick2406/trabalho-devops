@@ -1,4 +1,4 @@
-name: Pipeline de Integração Contínua (CI)
+name: Pipeline de Integração Contínua (CI/CD)
 
 on:
   push:
@@ -29,6 +29,18 @@ jobs:
         cd backend
         npm test
 
-    - name: Validar Build das Imagens Docker
-      run: |
-        docker compose build
+    
+    - name: Login no Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}gi
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Construir e Publicar a Imagem do Backend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/hardware-backend:latest
+          ${{ secrets.DOCKER_USERNAME }}/hardware-backend:${{ github.sha }}

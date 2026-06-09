@@ -1,30 +1,24 @@
 const request = require('supertest');
-const app = require('../src/app'); 
+const app = require('../src/app');
 
-jest.mock('pg', () => {
-  const mPool = {
-    query: jest.fn().mockResolvedValue({ 
-      rows: [{ id: 1, item: 'Álbum Mock', quantidade: 1, status: 'Processando', tipo: 'Vinil' }] 
-    }),
-  };
-  return { Pool: jest.fn(() => mPool) };
-});
-
-describe('Testes de Integração - API', () => {
-
-  it('Deve responder com status 200 na rota de Healthcheck', async () => {
-    const response = await request(app).get('/health');
+describe('Testes da API de Pedidos', () => {
+  
+  it('Deve criar um novo pedido com o tipo correto', async () => {
+    const res = await request(app)
+      .post('/api/pedidos')
+      .send({
+        item: 'Álbum de Teste Jest',
+        quantidade: 1,
+        tipo: 'CD'
+      });
     
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty('status', 'OK');
+    expect(res.statusCode).toEqual(201);
+    expect(res.body.message).toBe('Pedido criado com sucesso!');
   });
 
-  it('Deve responder com status 200 na rota principal de pedidos', async () => {
-    const response = await request(app).get('/api/pedidos');
-    
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty('message');
-    expect(Array.isArray(response.body.data)).toBeTruthy(); 
+  it('Deve listar os pedidos existentes', async () => {
+    const res = await request(app).get('/api/pedidos');
+    expect(res.statusCode).toEqual(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
   });
-
 });

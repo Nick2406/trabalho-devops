@@ -1,5 +1,13 @@
 const request = require('supertest');
-const app = require('../src/app');
+
+jest.mock('pg', () => {
+  const mPool = {
+    query: jest.fn().mockResolvedValue({ rows: [] }), // Simula que qualquer query retorna sucesso
+  };
+  return { Pool: jest.fn(() => mPool) };
+});
+
+const app = require('../src/app'); // Importa o app DEPOIS do mock
 
 describe('Testes da API de Pedidos', () => {
   

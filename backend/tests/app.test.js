@@ -4,7 +4,7 @@ const app = require('../src/app');
 jest.mock('pg', () => {
   const mPool = {
     query: jest.fn().mockResolvedValue({ 
-      rows: [{ id: 1, item: 'Placa de Vídeo Mock', quantidade: 1, status: 'Processando' }] 
+      rows: [{ id: 1, item: 'Álbum Mock', quantidade: 1, status: 'Processando', tipo: 'Vinil' }] 
     }),
   };
   return { Pool: jest.fn(() => mPool) };

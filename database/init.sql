@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
     id SERIAL PRIMARY KEY,
     item VARCHAR(255) NOT NULL,
     quantidade INT NOT NULL,
-    status VARCHAR(50) DEFAULT 'Pendente',
+    status VARCHAR(50) DEFAULT 'Processando',
+    tipo VARCHAR(50) DEFAULT 'Vinil',
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

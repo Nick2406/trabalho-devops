@@ -20,15 +20,9 @@
    ```env
    DB_PASSWORD=senha_secreta
 
-```
-
 3. Suba e construa toda a infraestrutura com o comando:
-```bash
-docker compose up -d --build
-
-```
-
-
+   ```bash
+   docker compose up -d --build
 
 ### Portas de Acesso
 
